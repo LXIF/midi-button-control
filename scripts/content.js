@@ -124,5 +124,5 @@ function dispatchKey() {
     const event = new KeyboardEvent('keydown', {
         key: 'ArrowRight'
     });
-    document.dispatchEvent(event);
+    document.dispatchEvent(event); //uwu
 }
