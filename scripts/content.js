@@ -14,7 +14,11 @@ async function sendToPopup(eventName, data) {
 
 document.addEventListener('mousedown', (e) => {
     if(isMapping) {
-        targetElement = e.target;
+        if(e.target.click) {
+            targetElement = e.target;
+        } else {
+            targetElement = e.target.closest('button');
+        }
         isMapping = false;
     }
 });
@@ -116,9 +120,14 @@ function getMIDIMessage(midiMessage) {
 
 
     if(data[0] === learned[0] && data[1] === learned[1] && data[2] !== 0) {
-       if(targetElement) {
-        targetElement.click();
-       }
+        // function traverseNonHTML(target) {
+        //     if(!target instanceof HTMLElement) {
+        //         console.log(target.parentNode);
+        //     }
+        // }
+        if(targetElement) {
+            targetElement.click();
+        }
     }
 }
 
