@@ -1,0 +1,40 @@
+body {
+    background-color: rgb(255, 255, 255);
+    font-family: 'Roboto', sans-serif;
+    width: 200px;
+    padding: 20px;
+    text-align: center;
+}
+
+button {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    width: 100%;
+    border-radius: 14px;
+    background-color: rgb(200, 255, 0);
+    border: none;
+    box-shadow: 1px 1px #7f7f7f5c;
+    padding: 7px;
+    transition: box-shadow 0.1s;
+}
+
+button:hover {
+    box-shadow: 5px 5px 5px 0px #7f7f7f5c;
+}
+
+select {
+    padding: 5px;
+    margin-bottom: 20px;
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+}
+
+h1 {
+    margin-top: 0;
+}
+
+img {
+    height: 50px;
+    width: 50px;
+    margin-bottom: 10px;
+}

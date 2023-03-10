@@ -1,4 +1,3 @@
-const heldKeys = [];
 let isMapping = false;
 let isLearning = false;
 let targetElement;
@@ -11,42 +10,12 @@ async function sendToPopup(eventName, data) {
         eventName,
         data
     });
-    // do something with response here, not outside the function
-    console.log(response);
 }
-
-// document.addEventListener('keydown', (e) => {
-
-//     if(!heldKeys.find(key => key === e.key)) {
-//         heldKeys.push(e.key);
-//     }
-//     //if combo
-//     if(
-//         heldKeys.includes('Meta') &&
-//         heldKeys.includes('m')
-//     ) {
-//         isMapping = true;
-//         console.log('Mapping now!');
-//     }
-
-//     if(targetElement) {
-//         if(e.key === 'Meta') {
-//             targetElement.click();
-//         }
-//     }
-// });
-
-// document.addEventListener('keyup', (e) => {
-//     const index = heldKeys.indexOf(e.key);
-//     heldKeys.splice(index, 1);
-// });
 
 document.addEventListener('mousedown', (e) => {
     if(isMapping) {
         targetElement = e.target;
-        console.log('Target: ' + targetElement);
         isMapping = false;
-        console.log('mapping ended!');
     }
 });
 
@@ -54,24 +23,40 @@ document.addEventListener('mousedown', (e) => {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-
-        if (request.eventName === "mapping") {
-            sendResponse({event: "mapping", data: "ongoing"});
-            isMapping = request.data;
-        }
-        if(request.eventName === 'selectedMidiInput') {
-            selectedMidiInput = midiInputs.find(input => input.name === request.data);
-            selectedMidiInput.onmidimessage = getMIDIMessage;
-            sendResponse({event: "selectedMidiInput", data: "set"}); 
-        }
-        if(request.eventName === 'learning') {
-            isLearning = request.data;
-            sendResponse({event: "learning", data: "hehehe"});
-        }
-        if(request.eventName === 'clear') {
-            selectedMidiInput = undefined;
-            targetElement = undefined;
-            learned = [0,0,0];
+        switch(request.eventName) {
+            case "mapping":
+                sendResponse({event: "mapping", data: request.data});
+                isMapping = request.data;
+                break;
+            case 'selectedMidiInput':
+                if(selectedMidiInput) {
+                    selectedMidiInput.onmidimessage = undefined;
+                }
+                selectedMidiInput = midiInputs.find(input => input.name === request.data);
+                selectedMidiInput.onmidimessage = getMIDIMessage;
+                sendResponse({event: "selectedMidiInput", data: "set"}); 
+                break;
+            case 'learning':
+                isLearning = request.data;
+                sendResponse({event: "learning", data: isLearning});
+                break;
+            case 'clear':
+                selectedMidiInput = undefined;
+                targetElement = undefined;
+                learned = [0,0,0];
+                sendResponse({event: 'clear', data: true});
+                break;
+            case 'onActivated':
+                sendResponse({event: 'newActiveTab', data: {
+                    targetElement: {
+                        tagName: targetElement?.tagName,
+                        title: targetElement?.title
+                    },
+                    selectedMidiInput: selectedMidiInput?.name,
+                    learned,
+                    midiInputs: midiInputs.map(input => { return { name: input.name } })
+                }});
+                break;
         }
     }
 );
@@ -108,7 +93,8 @@ function getMIDIMessage(midiMessage) {
         //set new mapping
         learned = [...data];
         isLearning = false;
-        console.log('learned');
+        sendToPopup('learning', false);
+        sendToPopup('learned', learned);
         return;
     }
 
@@ -124,5 +110,5 @@ function dispatchKey() {
     const event = new KeyboardEvent('keydown', {
         key: 'ArrowRight'
     });
-    document.dispatchEvent(event); //uwu
+    document.dispatchEvent(event);
 }

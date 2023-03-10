@@ -4,21 +4,30 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- <link rel="stylesheet" href="./popup.css" /> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./popup.css" />
   </head>
   <body>
-    <label for="devices">midi devices: </label>
+    <img src="./icons/WebMidiMapperLogo128.png">
+    <h1>Web MIDI Mapper</h1>
+
+    <label for="devices">Choose MIDI input: </label>
 
     <select id='devices' name="devices">
 
     </select>
 
-    <button id="learn">learn</button>
+    <button id="learn">Learn MIDI note</button>
 
     <p id="learned"></p>
 
-    <button id="start">Start mapping!</button>
-    <button id="clear">clear</button>
+    <button id="start">Map to element</button>
+
+    <p id="element"></p>
+
+    <button id="clear">Clear data</button>
 
 
     <script src="./popup.js" type="module"></script>
