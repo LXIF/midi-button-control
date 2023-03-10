@@ -85,9 +85,20 @@ function onMIDISuccess(midiAccess) {
 
     midiAccess.onstatechange = (e) => {
         const newInputs = e.target.inputs;
-        midiInputs = [...newInputs.values()];
-        console.log(midiInputs)
-        sendToPopup('midiInputs', midiInputs.map(input => { return { name: input.name } }));
+
+        function compareArrays(array1, array2) {
+            return (
+                array1.length === array2.length &&
+                array1.every((oldInput) => {
+                    return array2.find((newInput) => newInput.name === oldInput.name);
+                })
+            );
+        }
+
+        if(!compareArrays(midiInputs, [...newInputs.values()])) {
+            midiInputs = [...newInputs.values()];
+            sendToPopup('midiInputs', midiInputs.map(input => { return { name: input.name } }));
+        }
     }
 }
 
