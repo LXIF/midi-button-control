@@ -79,10 +79,11 @@ const midiInputsData = {
 const midiInputsHandler = {
     set(target, property, value) {
         if(value) {
-            value.forEach((value) => {
+            selector.innerText = '';
+            value.forEach((input) => {
                 const option = document.createElement('option');
-                option.innerText = value.name;
-                option.value = value.name;
+                option.innerText = input.name;
+                option.input = input.name;
          
                 selector.appendChild(option)
             });

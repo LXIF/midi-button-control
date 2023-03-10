@@ -2,7 +2,7 @@ let isMapping = false;
 let isLearning = false;
 let targetElement;
 let selectedMidiInput;
-const midiInputs = [];
+let midiInputs = [];
 let learned = [0,0,0];
 
 async function sendToPopup(eventName, data) {
@@ -81,8 +81,13 @@ console.log('Could not access your MIDI devices.');
 
 
 function onMIDISuccess(midiAccess) {
-    for (const input of midiAccess.inputs.values()) {
-        midiInputs.push(input);
+    midiInputs = [...midiAccess.inputs.values()];
+
+    midiAccess.onstatechange = (e) => {
+        const newInputs = e.target.inputs;
+        midiInputs = [...newInputs.values()];
+        console.log(midiInputs)
+        sendToPopup('midiInputs', midiInputs.map(input => { return { name: input.name } }));
     }
 }
 
