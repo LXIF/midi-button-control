@@ -30,6 +30,7 @@ chrome.runtime.onMessage.addListener(
         switch(request.eventName) {
             case "mapping":
                 sendResponse({event: "mapping", data: request.data});
+                console.log('mapping')
                 isMapping = request.data;
                 break;
             case 'selectedMidiInput':
@@ -51,40 +52,70 @@ chrome.runtime.onMessage.addListener(
                 sendResponse({event: 'clear', data: true});
                 break;
             case 'onActivated':
-                sendResponse({event: 'newActiveTab', data: {
-                    targetElement: {
-                        tagName: targetElement?.tagName,
-                        title: targetElement?.title
-                    },
-                    selectedMidiInput: selectedMidiInput?.name,
-                    learned,
-                    midiInputs: midiInputs.map(input => { return { name: input.name } })
-                }});
+                    allowMIDIAccess()
+                        .then((access) => {
+                            if(access === 'granted') {
+                                console.log('sending');
+                                const responseData = {event: 'newActiveTab', data: {
+                                    targetElement: {
+                                        tagName: targetElement?.tagName,
+                                        title: targetElement?.title
+                                    },
+                                    selectedMidiInput: selectedMidiInput?.name,
+                                    learned,
+                                    midiInputs: midiInputs.map(input => { return { name: input.name } })
+                                    }
+                                };
+                                console.log(responseData);
+                                sendResponse(responseData);
+                            } else {
+                                sendResponse({
+                                    event: 'newActiveTab', data: 'denied'
+                                });
+                            }
+                        });
                 break;
         }
+        return true;
     }
 );
 
 ///////MIDI///////
 
-function allowMIDIAccess() {
-    navigator.requestMIDIAccess()
-    .then(onMIDISuccess, onMIDIFailure);
+async function allowMIDIAccess() {
+    const result = await navigator.permissions.query({ name: 'midi', sysex: false });
+    if(result.state === 'granted') {
+        try{
+            const access = await navigator.requestMIDIAccess({
+                sysex: false,
+                software: false
+            });
+            const success = await onMIDISuccess(access);
+            if(success) {
+                console.log('howdy');
+                return 'granted'; 
+            }
+        } catch (err){
+            onMIDIFailure(err);
+            return 'granted';
+        }
+    } else if (result.state === 'prompt') {
+        allowMIDIAccess();
+    } else if (result.state === 'denied') {
+        
+        window.alert('You need to grant MIDI access to use MIDI features!');
+        return 'denied';
+    }
 }
 
-try {
-allowMIDIAccess();
-} catch(err) {
+function onMIDIFailure(err) {
+console.log('Could not access your MIDI devices.');
 console.log(err);
 }
 
-function onMIDIFailure() {
-console.log('Could not access your MIDI devices.');
-}
 
 
-
-function onMIDISuccess(midiAccess) {
+async function onMIDISuccess(midiAccess) {
     midiInputs = [...midiAccess.inputs.values()];
 
     midiAccess.onstatechange = (e) => {
@@ -104,6 +135,7 @@ function onMIDISuccess(midiAccess) {
             sendToPopup('midiInputs', midiInputs.map(input => { return { name: input.name } }));
         }
     }
+    return true;
 }
 
 function getMIDIMessage(midiMessage) {

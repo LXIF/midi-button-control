@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
-      "matches": ["<all_urls>"]
+      "matches": ["https://*/*", "*://localhost/*"]
     }
   ]
 }

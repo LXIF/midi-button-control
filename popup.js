@@ -153,6 +153,8 @@ async function passToContent(eventName, data) {
         eventName,
         data
     });
+    console.log(response);
+
     return response;
 }
 
@@ -225,17 +227,21 @@ selector.addEventListener('input', (e) => {
 ///////////onload//////////
 async function updateData() {
     const response = await passToContent('onActivated', true);
-
-    const { selectedMidiInput: savedSelectedMidiInput,
-        learned: savedLearned,
-        targetElement: savedTargetElement,
-        midiInputs: savedMidiInputs } = response.data;
-
-    learned.value = savedLearned;
-    targetElement.value = savedTargetElement;
-    midiInputs.value = savedMidiInputs;
-    if(savedSelectedMidiInput) {
-        selectedMidiInput.value = savedSelectedMidiInput;
+    if(response !== 'denied') {
+        const { selectedMidiInput: savedSelectedMidiInput,
+            learned: savedLearned,
+            targetElement: savedTargetElement,
+            midiInputs: savedMidiInputs } = response.data;
+    
+        learned.value = savedLearned;
+        targetElement.value = savedTargetElement;
+        midiInputs.value = savedMidiInputs;
+        if(savedSelectedMidiInput) {
+            selectedMidiInput.value = savedSelectedMidiInput;
+        }
+    } else {
+        window.alert('Must permit midi!');
     }
 }
-updateData();
+
+document.onload = updateData();
